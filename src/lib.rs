@@ -74,9 +74,13 @@ input = DeriveInput {
 #[proc_macro_derive(EnumFrom)]
 pub fn derive_enum_from(input: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    // println!("{:#?}", input);
+    // println!("input = {:#?}", input);
     // get the ident
     let ident = input.ident;
+    // println!("ident = {:#?}", ident);
+    // get generics
+    let generics = input.generics;
+    // println!("generics = {:#?}", generics);
     // get enum variants
     let variants = match input.data {
         syn::Data::Enum(data) => data.variants,
@@ -93,13 +97,8 @@ pub fn derive_enum_from(input: TokenStream) -> TokenStream {
                 } else {
                     let field = fields.unnamed.first().expect("should have 1 field");
                     let filed_type = &field.ty;
-                    // impl From<DirectionUp> for Direction {
-                    //     fn from(v: DirectionUp) -> Self {
-                    //         Direction::Up(v)
-                    //     }
-                    // }
                     quote! {
-                        impl From<#filed_type> for #ident {
+                        impl #generics From<#filed_type> for #ident #generics {
                             fn from(v: #filed_type) -> Self {
                                 #ident::#var(v)
                             }
